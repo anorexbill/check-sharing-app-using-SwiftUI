@@ -8,10 +8,53 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var tapCount = 0
+    @State private var checkAmount = ""
+    @State private var numberOfPeople = 2
+    @State private var tipAmount = 2
+    
+    let tipPercent = [10, 15, 20, 25, 0]
+    
+    var totalPerPerson: Double{
+        let peopleCount =  Double(numberOfPeople)
+        let tipSelection = Double(tipPercent[tipAmount])
+        let orderAmount = Double(checkAmount) ?? 0
+        
+        let tipValue = orderAmount * (tipSelection / 100)
+        let grandTotal = orderAmount + tipValue
+        let amountPerPerson = grandTotal / peopleCount
+        
+        return amountPerPerson
+    }
+    
     var body: some View {
-        Button("TapCount \(tapCount)"){
-            self.tapCount += 1
+        NavigationView{
+            Form{
+                Section{
+                    TextField("Please enter your amount", text: $checkAmount)
+                        .keyboardType(.decimalPad)
+                    Picker("Number of People", selection: $numberOfPeople){
+                        ForEach (0..<100){
+                            Text("\($0) people")
+                        }
+                    }
+                }
+                
+                Section( header: Text("How much tip do you want to leave?")){
+                    Picker("Tip Percentage", selection: $tipAmount){
+                        ForEach (0..<tipPercent.count){
+                            Text("\(self.tipPercent[$0])%")
+                        }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                }
+                
+                Section{
+                    Text("$\(totalPerPerson, specifier: "%.2f")")
+                }
+                
+                
+            }
+            .navigationBarTitle("Splitter")
         }
     }
 }
